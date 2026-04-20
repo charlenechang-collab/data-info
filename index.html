@@ -8,6 +8,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.2.2/wordcloud2.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #f8f9fa;
@@ -15,11 +18,15 @@
             line-height: 1.6;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
+            word-wrap: break-word;
         }
         .container {
+            width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
+            overflow-x: hidden;
         }
         .header {
             text-align: center;
@@ -48,7 +55,7 @@
             text-decoration: none;
             border-radius: 20px;
             font-weight: 700;
-            margin: 0 10px;
+            margin: 0 10px 10px 10px;
             transition: all 0.3s;
         }
         .navigator a:hover {
@@ -68,6 +75,7 @@
             gap: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             letter-spacing: 0.5px;
+            word-break: keep-all;
         }
         .kpi-container {
             display: flex;
@@ -80,8 +88,8 @@
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-            flex: 1;
-            min-width: 250px;
+            flex: 1 1 250px;
+            min-width: 0;
             position: relative;
             overflow: hidden;
         }
@@ -126,6 +134,8 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.04);
             margin-bottom: 30px;
+            width: 100%;
+            overflow-x: hidden;
         }
         .section-box h2, .chart-box h2 {
             margin-top: 0;
@@ -141,6 +151,16 @@
             padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
+        }
+        .chart-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .chart-flex > div {
+            flex: 1 1 220px;
+            min-width: 0;
+            position: relative;
         }
         ul { padding-left: 20px; }
         li { margin-bottom: 12px; }
@@ -205,8 +225,20 @@
         .kpi-card:nth-child(2) { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
         .kpi-card:nth-child(3) { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
         .grid-2 { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both; }
-        .section-box { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
-        
+        @media (max-width: 768px) {
+            .container { padding: 20px 10px; }
+            .grid-2 { grid-template-columns: 1fr; gap: 15px; }
+            .kpi-container { flex-direction: column; gap: 15px; }
+            .kpi-card { width: 100%; flex: auto; }
+            .chapter-title { font-size: 1.3rem; padding: 15px; flex-direction: column; align-items: flex-start; gap: 10px; word-break: normal; }
+            .header h1 { font-size: 1.6rem; }
+            .header h2 { font-size: 1.2rem !important; }
+            .chart-box, .section-box { padding: 15px 15px; margin-bottom: 20px; }
+            .kpi-value { font-size: 1.8rem; }
+            canvas { max-width: 100% !important; height: auto !important; max-height: 280px; }
+            img { max-width: 100% !important; height: auto !important; }
+        }
+        canvas { max-width: 100%; }
     </style>
 </head>
 <body>
@@ -271,7 +303,7 @@
             </div>
             <div class="action-item" style="border-left-color: #0c8599; background: #e3f2fd;">
                 <h4 style="color: #0056b3;">2. 結構化資料 (FAQ Schema) 大規模導入</h4>
-                <p>既然 AI 子文章的條列式解答在搜尋大獲全勝且高居首頁，下一版產品開發應<span style="color: #d63384; font-weight: bold;">自動將文章內的重點條列埋入 FAQ 結構化標記 (Schema)</span>，大幅提高跨平台搶佔 Google「第零位精選摘要 (Featured Snippets)」的機率。</p>
+                <p>既然 AI 子文章的條列式解答在搜尋大獲全勝且高居首頁，下一版產品開發應自動將文章內的重點條列埋入 FAQ 結構化標記 (Schema)，大幅提高跨平台搶佔 Google「第零位精選摘要 (Featured Snippets)」的機率。</p>
             </div>
             <div class="action-item" style="border-left-color: #0c8599; background: #e3f2fd;">
                 <h4 style="color: #0056b3;">3. H2/H3 長尾關鍵字自然編織法</h4>
@@ -314,9 +346,9 @@
             </div>
             <div class="chart-box">
                 <h2>📈 探索｜AI子文章佔比與類別分佈</h2>
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex:1;"><canvas id="categoryChart"></canvas></div>
-                    <div style="flex:1;"><canvas id="ctrDistChart"></canvas></div>
+                <div class="chart-flex">
+                    <div><canvas id="categoryChart"></canvas></div>
+                    <div><canvas id="ctrDistChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -380,17 +412,20 @@
             </div>
             <div class="action-item">
                 <h4>2. 強制倒金字塔寫作與排版</h4>
-                <p>前導文前 30 字必須拋出痛點解答或懸念鉤子；內文強迫使用重點 Markdown 粗體與條列式排版。</p>
+                <p><span style="color: #d63384; font-weight: bold;">前導文前 30 字必須拋出痛點解答或懸念鉤子；內文強迫使用重點 Markdown 粗體與條列式排版。</span></p>
             </div>
             <div class="action-item">
                 <h4>3. 植入「虛擬經驗感 (Experience)」</h4>
                 <p>引導 AI 結合「節目達人、具體生活痛點」，禁止平鋪直敘單品規格，正面迎擊 Google E-E-A-T 審查。</p>
             </div>
             <div class="action-item">
-                <h4>4. 自動化配圖與防守型汰除機制</h4>
-                <p>開發機制讓 AI子文章優先抓取「母文章」的首圖解決視覺盲點。<br>
-                <span style="color: #d63384; font-weight: bold; margin-top: 8px; display: inline-block;">🚨 盤點 0 CTR 的 79 篇舊 AI子文章，進行 noindex (禁止索引) 處理。</span><br>
-                <span style="color: #a61e4d; font-size: 0.95rem;">此策略形同「修剪枯枝」，主動讓 0 流量內容對 Google 隱形，避免演算法疊加判定我們為「量產廢文的農場」，從而防守並保全全站主力母文章的 SEO 排名與權重。</span></p>
+                <h4>4. 自動化配圖解決視覺盲區</h4>
+                <p><span style="color: #d63384; font-weight: bold;">開發機制讓 AI子文章優先抓取「母文章」的首圖解決視覺盲點。</span></p>
+            </div>
+            <div class="action-item" style="border-left-color: #dc3545; background: #fff5f5;">
+                <h4 style="color: #dc3545;">5. 防守型汰除機制 (SEO 保護) (下下策)</h4>
+                <p>🚨 盤點 0 CTR 的 79 篇舊 AI子文章，進行 noindex (禁止索引) 處理。<br>
+                此策略形同「修剪枯枝」，主動讓 0 流量內容對 Google 隱形，避免演算法疊加判定我們為「量產廢文的農場」，從而防守並保全全站主力母文章的 SEO 排名與權重。</p>
             </div>
         </div>
 
